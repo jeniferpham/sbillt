@@ -56,11 +56,7 @@ const TransactionSplitter: React.FC = () => {
     });
     setTransactions(updatedTransactions);
     updateTotals();
-  };
-
-  const handleSplit = () => {
-    updateTotals();
-  };
+  }
 
   const updateTotals = () => {
     const updatedPeople = [...people];
@@ -84,18 +80,34 @@ const TransactionSplitter: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <input type="file" accept=".csv" onChange={handleFileUpload} style={{ marginBottom: 20 }} />
-      <Button variant="contained" onClick={handleSplit} disabled={transactions.length === 0}>
-        Split Transactions
-      </Button>
+    <div style={{ maxWidth: '70vw', margin: '0 auto', alignItems: 'center' }}>
+      <input type="file" accept=".csv" onChange={handleFileUpload} style={{ marginTop: 20 }} />
       <Grid container spacing={2} style={{ marginTop: 20 }}>
         <Grid item xs={12}>
+          <Grid container style={{ marginBottom: 10 }}>
+            <Grid item xs={6}>
+              <Typography variant="h6">Description</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              {people.map((person, personIndex) => (
+                <FormControlLabel
+                  key={personIndex}
+                  control={
+                    <Checkbox
+                      checked={transactions.length > 0 && transactions.every((transaction) => transaction.splitByPerson[personIndex])}
+                      onChange={(e) => handleCheckAll(personIndex, e.target.checked)}
+                    />
+                  }
+                  label="Select All"
+                />
+              ))}
+            </Grid>
+          </Grid>
           {transactions.map((transaction, index) => (
-            <Grid container key={index} style={{ marginBottom: 10 }}>
+            <Grid container key={index} style={{ marginBottom: 10 }} spacing="between">
               <Grid item xs={6}>
                 <Typography variant="body1">{transaction.description}</Typography>
-                <Typography variant="body1">{transaction.amount}</Typography>
+                <Typography variant="body2">{transaction.amount}</Typography>
               </Grid>
               <Grid item xs={6}>
                 {people.map((person, personIndex) => (
@@ -123,16 +135,6 @@ const TransactionSplitter: React.FC = () => {
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="body1">{person.total.toFixed(2)}</Typography>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={transactions.length > 0 && transactions.every((transaction) => transaction.splitByPerson[personIndex])}
-                      onChange={(e) => handleCheckAll(personIndex, e.target.checked)}
-                    />
-                  }
-                  label="Check All"
-                  style={{ marginLeft: 20 }}
-                />
               </Grid>
             </Grid>
           ))}
