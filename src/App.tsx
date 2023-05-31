@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { Button, Checkbox, FormControlLabel, Grid, Typography } from '@mui/material';
+import { Checkbox, FormControlLabel, Grid, Typography } from '@mui/material';
 import Papa from 'papaparse';
+
+interface CSVRow {
+  Description: string,
+  Amount: string
+}
 
 type Transaction = {
   description: string;
@@ -27,16 +32,16 @@ const TransactionSplitter: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const csvData = e.target?.result as string;
-        const { data } = Papa.parse(csvData, { header: true });
-        const transactionsArray = data
-          .map((row: any) => ({
+        const data = Papa.parse(csvData, { header: true }).data as CSVRow[]
+        const transactions= data
+          .map((row: CSVRow) => ({
             description: row.Description,
             amount: parseFloat(row.Amount),
             splitByPerson: [false, false, false],
           }))
           .filter((t) => !!t.description);
 
-        setTransactions(transactionsArray);
+        setTransactions(transactions);
       };
       reader.readAsText(file);
     }
@@ -80,10 +85,10 @@ const TransactionSplitter: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '70vw', margin: '0 auto', alignItems: 'center' }}>
+    <div style={{ maxWidth: '80vw', margin: '0 auto', alignItems: 'center' }}>
       <input type="file" accept=".csv" onChange={handleFileUpload} style={{ marginTop: 20 }} />
       <Grid container spacing={2} style={{ marginTop: 20 }}>
-        <Grid item xs={12}>
+        <Grid item xs={8}>
           <Grid container style={{ marginBottom: 10 }}>
             <Grid item xs={6}>
               <Typography variant="h6">Description</Typography>
@@ -126,7 +131,7 @@ const TransactionSplitter: React.FC = () => {
             </Grid>
           ))}
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={4}>
           <Typography variant="h6">Totals:</Typography>
           {people.map((person, personIndex) => (
             <Grid container key={personIndex} alignItems="center" style={{ marginBottom: 10 }}>
